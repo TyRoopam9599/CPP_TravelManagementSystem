@@ -1,7 +1,9 @@
 #include<iostream>
+#include<string>
 #include<fstream>
 #include<iomanip>
 #include<unistd.h>
+#include<stdlib.h>
 
 using namespace std;
 
@@ -17,7 +19,8 @@ class Customer{
                 cout<<"Enter Customer ID: ";
                 cin>>custID ;
                 cout<<"Enter Customer Name: ";
-                cin>>name ;
+                cin.ignore();
+                getline(cin, name);
                 cout<<"Enter customer Age: ";
                 cin>>age ;
                 cout<<"Enter customer Gender: ";
@@ -54,13 +57,14 @@ class Cabs{
     int cabChoice;
     int kilometers;
     string bookedCab ;
-    static float price;
+    float price;
 
     void cabDetails(){
         cout<<"We collaborated with fastest, safest, and smartest cab service around the country:\n";
         cout<<"**************************************************\n";
         cout<<"Enter the number of kilometers you want to travel: ";
         cin>>kilometers ;
+        here:
         cout<<"Enter the cab type you want to travel: \n";
         cout<<"1. Micro (10 Rs./Km)"<<endl;
         cout<<"2. Mini (15 Rs./Km)"<<endl;
@@ -115,6 +119,9 @@ class Cabs{
                 price= kilometers*60.0;
                 bookedCab="Outstation";
                 break ;
+            default:
+                cout<<"Invalid Input"<<endl ;
+                break ;
         }
         cout<<"Your total bill will be: "<<price<<endl ;
         cout<<"Do you want to book a ride? (Y/N): ";
@@ -123,11 +130,11 @@ class Cabs{
         if (choice=='y' || choice=='Y'){
             cout<<"Your ride is booked.\n";
             cout<<"Goto Menu to take the receipt.\n";
-            sleep(100);
         }
         else{
             cout<<"Thank you for using our service.\n";
-            cabDetails() ;
+            system("clear");
+            goto here;
         }
     }
 };
@@ -138,7 +145,7 @@ class Booking{
     int Package;
     int gotoMenu;
     string bookedHotel;
-    static float hotelPrice ;
+    float hotelPrice ;
 
     void hotels(){
         string hotelName[10] = {"Taj Palace", "Hotel Taj", "Royal Hotel", "Empire Hotel", "Kapil Hotel", "Hotel Raj", "Tyagi's Hotel", "London Hotel", "Paris Hotel", "Uk Hotel"};
@@ -153,7 +160,7 @@ class Booking{
         switch(chooseHotel){
             case 1:
                 cout<<"You have selected "<<hotelName[0]<<" for your stay. The price of this hotel is "<<hotelprice[0]<<endl;
-                cout<<"Do you want tobook this hotel? (Y/N): ";
+                cout<<"Do you want to book this hotel? (Y/N): ";
                 cin>>choice ;
                 if(choice=='Y'||choice=='y'){
                     cout<<"Your hotel is booked\n";
@@ -339,9 +346,119 @@ class Receipt : public Booking, Cabs, Customer{         //Multiple Inheritance
         }
         outf.close() ;
     }
+
+    void showBill(){
+        ifstream inf("Receipt.txt");
+        {
+            if(!inf){
+                cout<<"File Not present\n";
+            }
+            else{
+                while(!(inf.eof())){
+                    string line;
+                    getline(inf, line);
+                    cout<<line<<endl ;
+                }
+            }
+        }
+        inf.close();
+    }
 };
 
+void menu(){
+    cout<<"---------------------------------------------"<<endl;
+    cout<<"--------------------Menu---------------------"<<endl;
+    cout<<"---------------------------------------------"<<endl<<endl;
+    cout<<"1. Cutomer Management\n";
+    cout<<"2. Cabs Management\n";
+    cout<<"3. Booking Management\n";
+    cout<<"4. Receipt Management\n";
+    cout<<"5. Exit\n";
+    cout<<"---------------------------------------------"<<endl;
+    cout<<"Enter your choice:";
+    int choice;
+    cin>>choice;
+
+    //Createing Objects
+    Customer c;
+    Cabs cabs;
+    Booking book;
+    Receipt receipt;
+
+    int ch ;
+    switch(choice){
+        case 1:
+            cout<<"---------------------------------------------"<<endl;
+            cout<<"--------------------Customer-----------------"<<endl;
+            cout<<"---------------------------------------------"<<endl<<endl;
+            cout<<"1. Add new Customer\n";
+            cout<<"2. Show old Customer\n";
+            cout<<"3. Go to menu\n";
+            cout<<"---------------------------------------------"<<endl;
+            cout<<"Enter your choice: ";
+            cin>>ch ;
+            switch(ch){
+                case 1:
+                    c.getCustomerInfo();
+                    break ;
+                case 2:
+                    c.showCustomerInfo();
+                    break;
+                case 3:
+                    menu();
+                    break;
+                default: 
+                    cout<<"Invalid Input\n";
+                    break ;
+            }
+        case 2:
+            cout<<"---------------------------------------------"<<endl;
+            cout<<"----------------------Cabs-------------------"<<endl;
+            cout<<"---------------------------------------------"<<endl<<endl;
+            cabs.cabDetails();
+            break ;
+        case 3:
+            cout<<"---------------------------------------------"<<endl;
+            cout<<"--------------------Booking-----------------"<<endl;
+            cout<<"---------------------------------------------"<<endl<<endl;
+            book.hotels();
+            break ;
+        case 4:
+            cout<<"---------------------------------------------"<<endl;
+            cout<<"---------------------Receipt-----------------"<<endl;
+            cout<<"---------------------------------------------"<<endl<<endl;
+            cout<<"1. Print Receipt\n";
+            cout<<"2. Show Receipt\n";
+            cout<<"3. Goto Menu\n";
+            cout<<"Enter your choice: ";
+            cin>>ch ;
+            switch(ch){
+                case 1:
+                    receipt.printBill() ;
+                    break ;
+                case 2: 
+                    receipt.showBill() ;
+                    break ;
+                case 3:
+                    cout<<"Are you sure you wnat to exit? (Y/N): ";
+                    char mChoice;
+                    cin>>mChoice ;
+                    if(mChoice=='Y' || mChoice=='y'){
+                        cout<<"Thank you for using  our sevive\n";
+                        exit(0);
+                    }
+                    else{
+                        menu() ;
+                    }
+                    break ;
+                default:
+                    cout<<"Invalid Input\n";
+                    break ; 
+            }
+    }
+}
+
 int main(){
-    Customer obj = Customer();
+    menu() ;
     return 0 ;
 }
